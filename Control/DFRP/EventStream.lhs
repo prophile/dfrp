@@ -21,7 +21,9 @@ As usual with Haskell, we start with the module name and exports as listed
 above.
 
 \begin{code}
-module Control.DFRP.EventStream(EventStream, bind, newStream) where
+module Control.DFRP.EventStream(EventStream,
+                                bind,
+                                newStream) where
 \end{code}
 
 We import \texttt{Control.Applicative} for the \texttt{Applicative} typeclass.
@@ -55,7 +57,8 @@ use record syntax to also define a \texttt{getContinuation} function to get at
 the underlying continuation.
 
 \begin{code}
-newtype EventStream a = EventStream { getContinuation :: Cont (IO ()) a }
+newtype EventStream a =
+  EventStream { getContinuation :: Cont (IO ()) a }
 \end{code}
 
 The Monad instance is a simple wrapper around the \texttt{Cont} Monad instance
@@ -64,7 +67,8 @@ with the appropriate conversions between types.
 \begin{code}
 instance Monad EventStream where
   return = EventStream . return
-  (EventStream a) >>= f = EventStream (a >>= (getContinuation . f))
+  (EventStream a) >>= f =
+    EventStream (a >>= (getContinuation . f))
 \end{code}
 
 The functor and applicative functor typeclasses can always be derived from a
@@ -102,7 +106,8 @@ eventual type forms a monoid, which in this case is the monoid $\langle \text{IO
 instance MonadPlus EventStream where
   mzero = EventStream $ cont $ const $ return ()
   (EventStream a) `mplus` (EventStream b) =
-    EventStream $ cont $ \ l -> (a `runCont` l) >> (b `runCont` l)
+    EventStream $ cont $ \ l ->
+      (a `runCont` l) >> (b `runCont` l)
 \end{code}
 
 The \texttt{MonadCont} instance for \texttt{EventStream} is rather simply
@@ -135,7 +140,8 @@ to both add listeners and transmit to them, and returns them.
 newStream :: IO (EventStream a, a -> IO ())
 newStream = do
   listeners <- newMVar []
-  let addListener l = modifyMVar_ listeners (\ls -> return $ l:ls)
+  let addListener l = modifyMVar_ listeners $ \ls ->
+        return $ l:ls
   let tx x = withMVar listeners (\r -> forM_ r ($ x))
   return (EventStream (cont addListener), tx)
 \end{code}
