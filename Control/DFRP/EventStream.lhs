@@ -11,10 +11,10 @@ In this module, we publish:
 \begin{itemize}
 \item The \texttt{EventStream} type itself, a wrapper around the relevant
       \texttt{Cont} instance;
-\item The typeclass instances of \textt{EventStream},
+\item The typeclass instances of \texttt{EventStream},
 \item A function \texttt{newStream} for creating arbitrary streams
       in the \texttt{IO} monad;
-\item A function \textt{bind} for binding streams to IO actions.
+\item A function \texttt{bind} for binding streams to IO actions.
 \end{itemize}
 
 As usual with Haskell, we start with the module name and exports as listed
@@ -24,13 +24,13 @@ above.
 module Control.DFRP.EventStream(EventStream, bind, newStream) where
 \end{code}
 
-We import \texttt{Control.Applicative} for the \textt{Applicative} typeclass.
+We import \texttt{Control.Applicative} for the \texttt{Applicative} typeclass.
 
 \begin{code}
 import Control.Applicative
 \end{code}
 
-We import \texttt{Control.Monad.Cont} for the \textt{Cont} monad from `mtl'.
+We import \texttt{Control.Monad.Cont} for the \texttt{Cont} monad from `mtl'.
 
 \begin{code}
 import Control.Monad.Cont
@@ -58,7 +58,7 @@ the underlying continuation.
 newtype EventStream a = EventStream { getContinuation :: Cont (IO ()) a }
 \end{code}
 
-The Monad instance is a simple wrapper around the \textt{Cont} Monad instance
+The Monad instance is a simple wrapper around the \texttt{Cont} Monad instance
 with the appropriate conversions between types.
 
 \begin{code}
@@ -92,7 +92,7 @@ then in the right-hand stream.
 The ordering is arbitrary, but important -- that is to say, \texttt{mplus} is not commutative.
 
 Incidentally, replacing \texttt{>>} in mplus with \texttt{`mappend`} and
-replacing \textt{return ()} in \texttt{mzero} with \texttt{mempty} reveals that
+replacing \texttt{return ()} in \texttt{mzero} with \texttt{mempty} reveals that
 the continuation monad can be made into a \texttt{MonadPlus} whenever the
 eventual type forms a monoid, which in this case is the monoid $\langle \text{IO
 ()}, \text{>>}, \text{return ()} \rangle$.
@@ -117,7 +117,7 @@ instance MonadCont EventStream where
 The \texttt{bind} function is trivial -- it is simply \texttt{runCont} mapped to
 the appropriate type, which itself is just the gateway to the innards of the
 continuation monad in much the same manner as \texttt{getContinuation} is used
-in \textt{EventStream}.
+in \texttt{EventStream}.
 
 \begin{code}
 bind :: EventStream a -> (a -> IO ()) -> IO ()
