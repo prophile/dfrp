@@ -5,6 +5,7 @@ import Test.QuickCheck
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.Cont.Class
 import Data.Functor
 import Data.IORef
 
@@ -83,4 +84,16 @@ main = hspec $ do
       totalStream `bind` (\x -> modifyIORef' elements (x:))
       results <- readIORef elements
       results `shouldBe` [15, 10]
+
+    it "has the usual 'escape mechanism' via callCC" $ do
+      let stream = mzero :: EventStream Int
+      let calledStream = callCC $ \k -> do
+            k 10
+            return 15
+      calledStream `bind` (`shouldBe` 10)
+
+    it "works correctly without a k-call with callCC" $ do
+      let stream = mzero :: EventStream Int
+      let calledStream = callCC $ \k -> return 15
+      calledStream `bind` (`shouldBe` 15)
 

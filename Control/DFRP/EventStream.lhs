@@ -5,6 +5,7 @@ module Control.DFRP.EventStream(EventStream, bind, newStream) where
 
 import Control.Applicative
 import Control.Monad.Cont
+import Control.Monad.Cont.Class
 import Control.Concurrent.MVar
 
 newtype EventStream a = EventStream { getContinuation :: Cont (IO ()) a }
@@ -24,6 +25,10 @@ instance MonadPlus EventStream where
   mzero = EventStream $ cont $ const $ return ()
   (EventStream a) `mplus` (EventStream b) =
     EventStream $ cont $ \ l -> (a `runCont` l) >> (b `runCont` l)
+
+instance MonadCont EventStream where
+  callCC f = EventStream $ callCC $ \k ->
+               getContinuation $ f (EventStream . k)
 
 bind :: EventStream a -> (a -> IO ()) -> IO ()
 bind (EventStream c) = runCont c
