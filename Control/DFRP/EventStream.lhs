@@ -36,8 +36,8 @@ We import \texttt{Control.Monad.Cont} for the \texttt{Cont} monad from `mtl'.
 import Control.Monad.Cont
 \end{code}
 
-For the \texttt{MonadCont} typeclass and \texttt{callCC}, we import
-\texttt{Control.Monad.Cont.Class}.
+For the \texttt{MonadCont} typeclass and the corresponding \texttt{callCC}
+function, we import \texttt{Control.Monad.Cont.Class}.
 
 \begin{code}
 import Control.Monad.Cont.Class
@@ -89,7 +89,8 @@ what it is supposed to do: we are constructing an event stream which, we given a
 listener \textbf{l} to bind, binds \textbf{l} first in the left-hand stream,
 then in the right-hand stream.
 
-The ordering is arbitrary, but important -- that is to say, \texttt{mplus} is not commutative.
+The ordering is arbitrary, but important -- that is to say, \texttt{mplus} is
+not commutative.
 
 Incidentally, replacing \texttt{>>} in mplus with \texttt{`mappend`} and
 replacing \texttt{return ()} in \texttt{mzero} with \texttt{mempty} reveals that
