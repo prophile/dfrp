@@ -1,3 +1,6 @@
+\section{Event Streams}
+
+\begin{code}
 module Control.DFRP.EventStream(EventStream, bind, newStream) where
 
 import Control.Applicative
@@ -31,4 +34,5 @@ newStream = do
   let addListener l = modifyMVar_ listeners (\ls -> return $ l:ls)
   let tx x = withMVar listeners (\r -> forM_ r ($ x))
   return (EventStream (cont addListener), tx)
+\end{code}
 
