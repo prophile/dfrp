@@ -23,7 +23,8 @@ above.
 \begin{code}
 module Control.DFRP.EventStream(EventStream,
                                 bind,
-                                newStream) where
+                                newStream,
+                                fromSubscribe) where
 \end{code}
 
 We import \texttt{Control.Applicative} for the \texttt{Applicative} typeclass.
@@ -144,5 +145,12 @@ newStream = do
         return $ l:ls
   let tx x = withMVar listeners (\r -> forM_ r ($ x))
   return (EventStream (cont addListener), tx)
+\end{code}
+
+Undocumented!
+
+\begin{code}
+fromSubscribe :: ((a -> IO ()) -> IO ()) -> EventStream a
+fromSubscribe = EventStream . cont
 \end{code}
 
