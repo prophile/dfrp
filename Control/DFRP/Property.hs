@@ -9,16 +9,31 @@ import Control.Concurrent.MVar
 import Control.Monad.Cont
 import Control.DFRP.EventStream
 import Data.IORef
+import Data.Unique
 
 data Property a = Property {getContinuation :: Cont (IO ()) a}
 
+instance Functor Property where
+  fmap f (Property a) =
+    Property $ cont $ \ l -> a `runCont` (l . f)
+
+joinProperty :: Property (Property a) -> Property a
+--joinProperty (Property b) = let c = runCont b in
+--    Property $ cont $ \ d -> c $ \ (Property f) -> let g = runCont f in g d
+joinProperty p = Property $ cont $ \ l -> do
+    initialToken <- newUnique
+    token <- newIORef initialToken
+    let handleSubproperty ps = do
+          activeToken <- newUnique
+          writeIORef token activeToken
+          ps `watch` (\value -> do
+            expectedToken <- readIORef token
+            unless (expectedToken /= activeToken) $ l value)
+    p `watch` handleSubproperty
+
 instance Monad Property where
   return = Property . return
-  (Property a) >>= f =
-    Property (a >>= (getContinuation . f))
-
-instance Functor Property where
-  fmap = liftM
+  p >>= f = joinProperty (f <$> p)
 
 scan :: (Monoid m) => EventStream m -> IO (Property m)
 scan stream = do
