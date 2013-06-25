@@ -22,8 +22,6 @@ instance Functor Property where
     Property $ cont $ \ l -> a `runCont` (l . f)
 
 joinProperty :: Property (Property a) -> Property a
---joinProperty (Property b) = let c = runCont b in
---    Property $ cont $ \ d -> c $ \ (Property f) -> let g = runCont f in g d
 joinProperty p = Property $ cont $ \ l -> do
     initialToken <- newUnique
     token <- newIORef initialToken
