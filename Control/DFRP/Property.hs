@@ -1,6 +1,10 @@
 {-# LANGUAGE MonadComprehensions #-}
 
-module Control.DFRP.Property where
+module Control.DFRP.Property(Property,
+                             scan,
+                             latest,
+                             changes,
+                             watch) where
 
 import Data.Maybe(fromMaybe)
 import Data.Monoid
@@ -11,7 +15,7 @@ import Control.DFRP.EventStream
 import Data.IORef
 import Data.Unique
 
-data Property a = Property {getContinuation :: Cont (IO ()) a}
+data Property a = Property (Cont (IO ()) a)
 
 instance Functor Property where
   fmap f (Property a) =
