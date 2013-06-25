@@ -79,3 +79,17 @@ propertySpec = describe "Property" $ do
     results <- readIORef elements
     results `shouldBe` [(10, 10), (0, 10)]
 
+  it "does not remember previous values under monadic join" $ do
+    (streamA, txA) <- newStream
+    let streamB = mzero
+    propA <- latest streamA 1
+    propB <- latest streamB 2
+    (streamX, txX) <- newStream
+    propX <- latest streamX propA
+    elements <- newIORef []
+    (join propX) `watch` (\x -> modifyIORef' elements (x:))
+    txX propB
+    txA 3
+    results <- readIORef elements
+    results `shouldBe` [2, 1]
+
