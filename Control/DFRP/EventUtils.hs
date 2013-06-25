@@ -1,6 +1,7 @@
 {-# LANGUAGE MonadComprehensions #-}
 
-module Control.DFRP.EventUtils where
+module Control.DFRP.EventUtils(fromList,
+                               flattenStream) where
 
 import Control.Monad
 
