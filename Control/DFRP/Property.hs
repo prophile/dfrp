@@ -53,6 +53,7 @@ scan stream = unsafePerformIO $ do
           l initialValue
     stream `bind` receive
     return $ Property $ cont addListener
+{-# NOINLINE scan #-}
 
 latest :: EventStream a -> a -> Property a
 latest strm dfl = (fromMaybe dfl . getLast) <$> baseProperty
