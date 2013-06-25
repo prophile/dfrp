@@ -34,7 +34,7 @@ propertySpec = describe "Property" $ do
 
   it "responds to changes in its input" $ do
     (stream, tx) <- newStream
-    property <- scan stream
+    let property = scan stream
     elements <- newIORef []
     property `watch` (\x -> modifyIORef' elements (x:))
     tx $ Sum (1 :: Int)
@@ -44,7 +44,7 @@ propertySpec = describe "Property" $ do
 
   it "can be created from EventStreams with latest" $ do
     (stream, tx) <- newStream
-    property <- latest stream 5
+    let property = latest stream 5
     elements <- newIORef []
     property `watch` (\x -> modifyIORef' elements (x:))
     tx 10
@@ -60,7 +60,7 @@ propertySpec = describe "Property" $ do
   it "does not issue left-duplicates on source changes" $ do
     (stream, tx) <- newStream
     let propertyLeft = return (10 :: Int)
-    propertyRight <- latest stream 0
+    let propertyRight = latest stream 0
     let propertyZip = [(a, b) | a <- propertyLeft, b <- propertyRight]
     elements <- newIORef []
     propertyZip `watch` (\x -> modifyIORef' elements (x:))
@@ -71,7 +71,7 @@ propertySpec = describe "Property" $ do
   it "does not issue right-duplicates on source changes" $ do
     (stream, tx) <- newStream
     let propertyRight = return (10 :: Int)
-    propertyLeft <- latest stream 0
+    let propertyLeft = latest stream 0
     let propertyZip = [(a, b) | a <- propertyLeft, b <- propertyRight]
     elements <- newIORef []
     propertyZip `watch` (\x -> modifyIORef' elements (x:))
@@ -82,10 +82,10 @@ propertySpec = describe "Property" $ do
   it "does not remember previous values under monadic join" $ do
     (streamA, txA) <- newStream
     let streamB = mzero
-    propA <- latest streamA 1
-    propB <- latest streamB 2
+    let propA = latest streamA 1
+    let propB = latest streamB 2
     (streamX, txX) <- newStream
-    propX <- latest streamX propA
+    let propX = latest streamX propA
     elements <- newIORef []
     (join propX) `watch` (\x -> modifyIORef' elements (x:))
     txX propB

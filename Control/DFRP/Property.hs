@@ -14,6 +14,7 @@ import Control.Monad.Cont
 import Control.DFRP.EventStream
 import Data.IORef
 import Data.Unique
+import System.IO.Unsafe(unsafePerformIO)
 
 data Property a = Property (Cont (IO ()) a)
 
@@ -37,8 +38,8 @@ instance Monad Property where
   return = Property . return
   p >>= f = joinProperty (f <$> p)
 
-scan :: (Monoid m) => EventStream m -> IO (Property m)
-scan stream = do
+scan :: (Monoid m) => EventStream m -> Property m
+scan stream = unsafePerformIO $ do
     value <- newIORef mempty
     listeners <- newMVar []
     let tx value = withMVar listeners $ \ receivers ->
@@ -53,11 +54,10 @@ scan stream = do
     stream `bind` receive
     return $ Property $ cont addListener
 
-latest :: EventStream a -> a -> IO (Property a)
-latest strm dfl = do
-    let eventStream = (Last . Just) <$> strm
-    baseProperty <- scan eventStream
-    return $ (fromMaybe dfl . getLast) <$> baseProperty
+latest :: EventStream a -> a -> Property a
+latest strm dfl = (fromMaybe dfl . getLast) <$> baseProperty
+    where baseProperty = scan eventStream
+          eventStream = (Last . Just) <$> strm
 
 changes :: Property a -> EventStream a
 changes (Property strm) = fromSubscribe (runCont strm)
