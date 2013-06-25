@@ -98,3 +98,17 @@ eventStreamSpec = describe "EventStream" $ do
     let calledStream = callCC $ \k -> return 15
     calledStream `bind` (`shouldBe` 15)
 
+  it "does not forget previous streams under monadic join" $ do
+    (sourceA, txA) <- newStream
+    (sourceB, txB) <- newStream
+    (sourceX, txX) <- newStream
+    elements <- newIORef []
+    (join sourceX) `bind` (\x -> modifyIORef' elements (x:))
+    txX sourceA
+    txA 10
+    txX sourceB
+    txB 15
+    txA 20
+    results <- readIORef elements
+    results `shouldBe` [20, 15, 10]
+
