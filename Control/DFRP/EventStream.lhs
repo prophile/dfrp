@@ -39,13 +39,6 @@ We import \texttt{Control.Monad.Cont} for the \texttt{Cont} monad from `mtl'.
 import Control.Monad.Cont
 \end{code}
 
-For the \texttt{MonadCont} typeclass and the corresponding \texttt{callCC}
-function, we import \texttt{Control.Monad.Cont.Class}.
-
-\begin{code}
-import Control.Monad.Cont.Class
-\end{code}
-
 Finally, in the implementation, an \texttt{EventStream} `keeps track' of its
 listeners. To do so, we store a list of listeners in an MVar.
 
