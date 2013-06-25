@@ -2,11 +2,11 @@
 
 module Control.DFRP.Property where
 
+import Data.Maybe(fromMaybe)
 import Data.Monoid
 import Data.Functor
 import Control.Concurrent.MVar
 import Control.Monad.Cont
-import Control.Monad.Zip
 import Control.DFRP.EventStream
 import Data.IORef
 
@@ -26,7 +26,7 @@ scan stream = do
     listeners <- newMVar []
     let tx value = withMVar listeners $ \ receivers ->
           forM_ receivers ($ value)
-    let broadcast = (readIORef value) >>= tx
+    let broadcast = readIORef value >>= tx
     let update x = modifyIORef' value (`mappend` x)
     let receive x = withMVar listeners (\_ -> update x) >> broadcast
     let addListener l = do
@@ -40,11 +40,11 @@ latest :: EventStream a -> a -> IO (Property a)
 latest strm dfl = do
     let eventStream = (Last . Just) <$> strm
     baseProperty <- scan eventStream
-    return $ (maybe dfl id . getLast) <$> baseProperty
+    return $ (fromMaybe dfl . getLast) <$> baseProperty
 
 changes :: Property a -> EventStream a
 changes (Property strm) = fromSubscribe (runCont strm)
 
 watch :: Property a -> (a -> IO ()) -> IO ()
-watch p l = (changes p) `bind` l
+watch p = bind $ changes p
 
